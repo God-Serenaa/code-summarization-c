@@ -50,3 +50,8 @@ def detect_functions(code):
         if match:
             function_names.append(match.group(1))
     return function_names
+
+def count_function_calls(code_content, function_name):
+    pattern = re.compile(r'\b' + re.escape(function_name) + r'\s*\(')
+    matches = pattern.findall(code_content)
+    return len(matches)-1
