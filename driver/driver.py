@@ -1,4 +1,4 @@
-from utils.utils import preprocess_code, detect_loops
+from utils.utils import preprocess_code, detect_loops, detect_conditions
 
 def driver(PATH):
   with open(PATH) as f:
@@ -12,5 +12,8 @@ def driver(PATH):
 
     loops = detect_loops(code_string)
     loop_count = len(loops)
-    
-    return (loops, loop_count)
+
+    conditions = detect_conditions(code_string)
+    conditions_count = len(conditions)
+
+    return (loops, loop_count, conditions, conditions_count)

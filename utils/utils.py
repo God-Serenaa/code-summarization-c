@@ -89,3 +89,33 @@ def count_function_calls(code_content, function_name):
     pattern = re.compile(r'\b' + re.escape(function_name) + r'\s*\(')
     matches = pattern.findall(code_content)
     return len(matches)-1
+
+def detect_conditions(code):
+    code = preprocess_code(code)
+    # Identify lines that may contain conditions
+    condition_lines = [line.strip() for line in code.split('\n') if re.match(r'\s*if\s*\(|\s*else if\s*\(|\s*else\s*{?', line)]
+    
+    # condition_lines1 = [line.strip() for line in code.split('\n') if re.match(r'\s*(if|else if)\s*[^{]*\s*{?', line)]
+    # condition_lines1 = [re.sub(r'\([^)]*\)', '', line) for line in condition_lines]
+    
+    # Extract conditions and their nesting levels
+    conditions = []
+    current_indent = 0
+    for line in condition_lines:
+        match_if = re.match(r'\s*if\s*\((.*)\)\s*{?', line)
+        match_elif = re.match(r'\s*else if\s*\((.*)\)\s*{?', line)
+        match_else = re.match(r'\s*else\s*{?', line)
+
+        if match_if:
+            condition = {'type': 'if', 'condition': match_if.group(1), 'indent': current_indent}
+            conditions.append(condition)
+            current_indent += 1
+        elif match_elif:
+            condition = {'type': 'elif', 'condition': match_elif.group(1), 'indent': current_indent}
+            conditions.append(condition)
+        elif match_else:
+            condition = {'type': 'else', 'condition': None, 'indent': current_indent}
+            conditions.append(condition)
+            current_indent -= 1
+
+    return conditions
