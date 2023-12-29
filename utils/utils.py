@@ -5,6 +5,40 @@ def preprocess_code(code):
     code = re.sub(r'//.*', '', code)
     return code
 
+def detect_loops(code):
+    code = preprocess_code(code)
+    lines = code.split('\n')
+
+    loops = []
+    current_indent = 0  # Track the current nesting level
+    indent_stack = []  # Stack to manage indent levels
+
+    for line in lines:
+        line = line.strip()
+
+        # Increase indent level when a '{' is found
+        if '{' in line:
+            indent_stack.append('{')
+            current_indent = len(indent_stack) - 1
+
+        # Detect 'for' and 'while' loops
+        match_for = re.match(r'\s*for\s*\((.*)\)\s*{?', line)
+        match_while = re.match(r'\s*while\s*\((.*)\)\s*{?', line)
+
+        if match_for or match_while:
+            loop_type = 'for' if match_for else 'while'
+            condition = match_for.group(1) if match_for else match_while.group(1)
+            loop = {'type': loop_type, 'condition': condition, 'indent': current_indent}
+            loops.append(loop)
+
+        # Decrease indent level when a '}' is found
+        if '}' in line:
+            if indent_stack and indent_stack[-1] == '{':
+                indent_stack.pop()
+            current_indent = len(indent_stack) - 1
+
+    return loops
+
 def count_brackets(line):
     opening_brackets = re.findall(r'{', line)
     closing_brackets = re.findall(r'}', line)
