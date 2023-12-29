@@ -71,12 +71,16 @@ def extract_function(function, code):
       return {"name": function, "body": function_code}
 
 def detect_functions(code):
+    code = preprocess_code(code)
+
+
+
+
     potential_function_lines = [
         line for line in code.split('\n') if re.match(r'\s*[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*{?', line)
+        and not re.match(r'\s*(if|else if|else)\s*\(', line)
     ]
-    potential_function_lines = [
-        line for line in potential_function_lines if not re.match(r'\s*(if|else if|else)\s*\(', line)
-    ]
+
 
     function_names = []
     for line in potential_function_lines:
