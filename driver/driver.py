@@ -1,19 +1,26 @@
-from utils.utils import preprocess_code, detect_loops, detect_conditions
-
+from utils.utils import preprocess_code, detect_loops, detect_conditions, detect_functions, extract_function, count_function_calls
 def driver(PATH):
-  with open(PATH) as f:
-    code_lines = f.readlines()
+    with open(PATH) as f:
+        code_lines = f.readlines()
 
-    code = ''
-    for line in code_lines:
-      code += "\n"+line
+        code = ''
+        for line in code_lines:
+            code += "\n"+line
 
-    code_string = preprocess_code(code)
+        code_string = preprocess_code(code)
+        functions = detect_functions(code_string)
 
-    loops = detect_loops(code_string)
-    loop_count = len(loops)
+        function_details = []
+        for function in functions:
+            temp = extract_function(function, code_lines)
+            temp["call_count"] = count_function_calls(code_string, function)
 
-    conditions = detect_conditions(code_string)
-    conditions_count = len(conditions)
+            temp["conditions"] = detect_conditions(temp["body"])
+            temp["condition_count"] = len(temp["conditions"])
 
-    return (loops, loop_count, conditions, conditions_count)
+            temp["loops"] = detect_loops(temp["body"])
+            temp["loop_count"] = len(temp["loops"])
+
+            function_details.append(temp)
+    
+    return function_details
