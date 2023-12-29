@@ -1,3 +1,5 @@
+from utils.utils import preprocess_code
+
 def driver(PATH):
   with open(PATH) as f:
     code_lines = f.readlines()
@@ -6,4 +8,5 @@ def driver(PATH):
     for line in code_lines:
       code += "\n"+line
 
-    return code
+    code_string = preprocess_code(code)
+    return code_string
