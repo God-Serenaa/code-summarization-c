@@ -10,18 +10,18 @@ def detect_loops(code):
     lines = code.split('\n')
 
     loops = []
-    current_indent = 0  # Track the current nesting level
-    indent_stack = []  # Stack to manage indent levels
+    current_indent = 0
+    indent_stack = []
 
     for line in lines:
         line = line.strip()
 
-        # Increase indent level when a '{' is found
+
         if '{' in line:
             indent_stack.append('{')
             current_indent = len(indent_stack) - 1
 
-        # Detect 'for' and 'while' loops
+
         match_for = re.match(r'\s*for\s*\((.*)\)\s*{?', line)
         match_while = re.match(r'\s*while\s*\((.*)\)\s*{?', line)
 
@@ -31,7 +31,7 @@ def detect_loops(code):
             loop = {'type': loop_type, 'condition': condition, 'indent': current_indent}
             loops.append(loop)
 
-        # Decrease indent level when a '}' is found
+
         if '}' in line:
             if indent_stack and indent_stack[-1] == '{':
                 indent_stack.pop()
@@ -92,30 +92,22 @@ def count_function_calls(code_content, function_name):
 
 def detect_conditions(code):
     code = preprocess_code(code)
-    # Identify lines that may contain conditions
     condition_lines = [line.strip() for line in code.split('\n') if re.match(r'\s*if\s*\(|\s*else if\s*\(|\s*else\s*{?', line)]
     
-    # condition_lines1 = [line.strip() for line in code.split('\n') if re.match(r'\s*(if|else if)\s*[^{]*\s*{?', line)]
-    # condition_lines1 = [re.sub(r'\([^)]*\)', '', line) for line in condition_lines]
-    
-    # Extract conditions and their nesting levels
     conditions = []
-    current_indent = 0
     for line in condition_lines:
         match_if = re.match(r'\s*if\s*\((.*)\)\s*{?', line)
         match_elif = re.match(r'\s*else if\s*\((.*)\)\s*{?', line)
         match_else = re.match(r'\s*else\s*{?', line)
 
         if match_if:
-            condition = {'type': 'if', 'condition': match_if.group(1), 'indent': current_indent}
+            condition = {'type': 'if', 'condition': match_if.group(1)}
             conditions.append(condition)
-            current_indent += 1
         elif match_elif:
-            condition = {'type': 'elif', 'condition': match_elif.group(1), 'indent': current_indent}
+            condition = {'type': 'elif', 'condition': match_elif.group(1)}
             conditions.append(condition)
         elif match_else:
-            condition = {'type': 'else', 'condition': None, 'indent': current_indent}
+            condition = {'type': 'else', 'condition': None}
             conditions.append(condition)
-            current_indent -= 1
 
     return conditions
